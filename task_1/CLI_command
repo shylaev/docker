@@ -1,0 +1,7 @@
+#
+#commands to build and start frontend
+#
+
+docker build -t docker_hw1 .
+
+docker run -name frontend -d -p 8800:3000 -t docker_hw1
