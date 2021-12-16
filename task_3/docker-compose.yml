@@ -1,0 +1,64 @@
+#build images from scratch
+#
+#
+
+version: "3.8"
+
+services: 
+  database:
+    image: postgres
+    container_name: database
+    volumes:
+      - /var/db/pgdata:/var/db/postgresql/data_hw
+    environment:
+      POSTGRES_USER: django
+      POSTGRES_PASSWORD: django
+      POSTGRES_DB: django
+      PGDATA: /var/db/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U django -d django"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: on-failure:3
+    ports:
+      - 5432:5432
+    networks:
+      - homework
+
+  backend:
+    image: backend
+    build:
+      context: lib_catalog/.
+      dockerfile: Dockerfile
+    container_name: backend
+    depends_on: 
+      database:
+        condition: service_healthy
+    ports:
+      - 8000:8000
+    networks:
+      - homework
+
+  frontend:
+    image: frontend
+    build:
+      context: frontend/.
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: on-failure:3
+    ports:
+      - 8008:3000
+    networks:
+      - homework
+      - front
+    stdin_open: true
+
+networks:
+  homework:
+    name: homework
+    driver: bridge    
+  front:
+    name: front
+    driver: bridge
