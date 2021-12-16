@@ -45,8 +45,13 @@ services:
       - 8008:3000
     networks:
       - homework
+      - front
     stdin_open: true
 
 networks:
   homework:
     name: homework
+    driver: bridge    
+  front:
+    name: front
+    driver: bridge
